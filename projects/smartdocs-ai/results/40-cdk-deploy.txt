@@ -1,0 +1,5 @@
+NOT CAPTURED YET
+
+This file is replaced with real output when you run:
+
+  tools/capture.sh smartdocs-ai 40-cdk-deploy bash scripts/40-cdk.sh deploy 4

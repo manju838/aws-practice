@@ -1,0 +1,57 @@
+---
+layout: default
+---
+{%- comment -%}
+  Layout for everything under projects/. It builds a mini table of contents
+  from the markdown files sitting in the SAME folder as the current page:
+    README.md            -> "Overview" (always first)
+    00-background.md,
+    01-foundation.md ... -> the phase pages, ordered by filename.
+  So adding a phase = adding a numbered .md file. Nothing to register.
+{%- endcomment -%}
+
+{%- assign siblings = site.pages | where: "dir", page.dir | where_exp: "p", "p.name contains '.md'" -%}
+{%- assign overview = siblings | where: "name", "README.md" | first -%}
+{%- assign steps = siblings | where_exp: "p", "p.name != 'README.md'" | sort: "path" -%}
+
+{%- assign all = "" | split: "" -%}
+{%- if overview -%}{%- assign all = all | push: overview -%}{%- endif -%}
+{%- for s in steps -%}{%- assign all = all | push: s -%}{%- endfor -%}
+
+{%- assign idx = 0 -%}
+{%- for s in all -%}{%- if s.url == page.url -%}{%- assign idx = forloop.index0 -%}{%- endif -%}{%- endfor -%}
+{%- assign prev_idx = idx | minus: 1 -%}
+{%- assign next_idx = idx | plus: 1 -%}
+{%- assign prev_page = all[prev_idx] -%}
+{%- assign next_page = all[next_idx] -%}
+
+<article class="post">
+
+  <nav class="project-bar" aria-label="Pages in this project">
+    {%- for s in all -%}
+      {%- if s.url == page.url -%}
+        <span class="project-bar-item active">{% if forloop.first %}Overview{% else %}{{ s.title | escape }}{% endif %}</span>
+      {%- else -%}
+        <a class="project-bar-item" href="{{ s.url | relative_url }}">{% if forloop.first %}Overview{% else %}{{ s.title | escape }}{% endif %}</a>
+      {%- endif -%}
+    {%- endfor -%}
+  </nav>
+
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title | escape }}</h1>
+  </header>
+
+  <div class="post-content">
+    {{ content }}
+  </div>
+
+  <nav class="project-pager">
+    {%- if idx > 0 and prev_page -%}
+      <a class="pager-prev" href="{{ prev_page.url | relative_url }}">&larr; {% if idx == 1 %}Overview{% else %}{{ prev_page.title | escape }}{% endif %}</a>
+    {%- else -%}<span></span>{%- endif -%}
+    {%- if next_page -%}
+      <a class="pager-next" href="{{ next_page.url | relative_url }}">{{ next_page.title | escape }} &rarr;</a>
+    {%- endif -%}
+  </nav>
+
+</article>

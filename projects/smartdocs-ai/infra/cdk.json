@@ -1,0 +1,8 @@
+{
+  "app": "uv run --group infra python app.py",
+  "watch": { "include": ["**"], "exclude": ["cdk.out", "tests", ".venv", "**/__pycache__"] },
+  "context": {
+    "@aws-cdk/core:checkSecretUsage": true,
+    "@aws-cdk/aws-iam:minimizePolicies": true
+  }
+}

@@ -1,0 +1,5 @@
+NOT CAPTURED YET
+
+This file is replaced with real output when you run:
+
+  tools/capture.sh smartdocs-ai 10-bedrock-access bash scripts/10-check-bedrock.sh

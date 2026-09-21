@@ -1,0 +1,67 @@
+# ─────────────────────────────────────────────────────────────────────
+# Site config — GitHub Pages builds this with its built-in Jekyll.
+# Everything here is site-wide; per-project settings live in
+# _data/projects.yml (the ONE file you edit to add a project tab).
+# ─────────────────────────────────────────────────────────────────────
+title: AWS Practice
+description: Hands-on AWS projects, documented as they were built — process, results and lessons.
+
+# EDIT THESE TWO after creating the repo:
+#   url     → https://<your-github-username>.github.io
+#   baseurl → /<repo-name>   (use "" if the repo is named <username>.github.io)
+url: "https://manju838.github.io"
+baseurl: "/aws-practice"
+
+theme: minima          # the most basic theme GitHub Pages supports
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+
+# These are already on by default at GitHub Pages; listing them makes the
+# behaviour explicit and identical when you preview locally.
+plugins:
+  - jekyll-optional-front-matter   # plain .md files (no '---' block) become pages
+  - jekyll-readme-index            # README.md in a folder becomes that folder's index page
+  - jekyll-relative-links          # [text](02-storage.md) links work on the site AND on GitHub
+  - jekyll-titles-from-headings    # page title = first '# Heading' of the file
+  - jekyll-default-layout
+
+# Don't also publish the raw .md source next to each rendered page.
+optional_front_matter:
+  remove_originals: true
+readme_index:
+  remove_originals: true
+
+relative_links:
+  enabled: true
+  collections: false
+
+titles_from_headings:
+  enabled: true
+  strip_title: true    # layout prints the title, so drop the duplicate H1 from the body
+
+# Every page gets a layout automatically, so .md files need no front matter.
+defaults:
+  - scope: { path: "" }
+    values: { layout: "page" }
+  - scope: { path: "projects" }
+    values: { layout: "project" }     # adds the "in this project" bar + prev/next
+
+# Never publish these (secrets, build output, huge binaries, local tooling).
+exclude:
+  - config.env
+  - "**/config.env"
+  - "**/.venv"
+  - "**/cdk.out"
+  - "**/node_modules"
+  - "**/layer"
+  - "**/build"
+  - "**/.python-version"
+  - "**/uv.lock"
+  - "*.zip"
+  - README.md            # root README is for GitHub; index.md is the site home
+  - Gemfile
+  - Gemfile.lock
+  - tools
+  - vendor

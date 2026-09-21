@@ -1,0 +1,5 @@
+NOT CAPTURED YET
+
+This file is replaced with real output when you run:
+
+  tools/capture.sh smartdocs-ai 51-insights bash scripts/51-logs-insights.sh

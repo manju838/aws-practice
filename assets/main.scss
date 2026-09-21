@@ -1,0 +1,81 @@
+---
+# (front matter required so Jekyll compiles this file)
+---
+@import "minima";
+
+// ── nav tabs ────────────────────────────────────────────
+.site-nav .page-link.current-tab {
+  color: $brand-color;
+  font-weight: 600;
+  border-bottom: 2px solid $brand-color;
+}
+
+// ── in-project bar (phase links) ────────────────────────
+.project-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 1.4rem;
+  padding-bottom: .8rem;
+  border-bottom: 1px solid $grey-color-light;
+  font-size: .85rem;
+}
+.project-bar-item {
+  padding: 3px 10px;
+  border: 1px solid $grey-color-light;
+  border-radius: 14px;
+  color: $text-color;
+  text-decoration: none;
+  &:hover { border-color: $brand-color; color: $brand-color; }
+  &.active { background: $brand-color; border-color: $brand-color; color: #fff; }
+}
+.project-pager {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid $grey-color-light;
+}
+
+// ── home page project cards ─────────────────────────────
+.project-cards { display: grid; gap: 16px; margin: 1.5rem 0; }
+.project-card {
+  display: block;
+  padding: 16px 18px;
+  border: 1px solid $grey-color-light;
+  border-radius: 6px;
+  text-decoration: none;
+  color: $text-color;
+  &:hover { border-color: $brand-color; text-decoration: none; }
+  h3 { margin: 0 0 4px; }
+  p  { margin: 0 0 8px; color: $grey-color-dark; }
+}
+.badge {
+  display: inline-block;
+  padding: 1px 9px;
+  border-radius: 10px;
+  font-size: .75rem;
+  color: #fff;
+  background: $grey-color-dark;
+  &.in-progress { background: #d97706; }
+  &.done        { background: #16a34a; }
+  &.planned     { background: #6b7280; }
+}
+.chip {
+  display: inline-block;
+  margin: 0 4px 4px 0;
+  padding: 0 8px;
+  border: 1px solid $grey-color-light;
+  border-radius: 10px;
+  font-size: .75rem;
+  color: $grey-color-dark;
+}
+
+// ── content niceties ────────────────────────────────────
+table { display: block; overflow-x: auto; }
+.callout {
+  margin: 1rem 0;
+  padding: .6rem 1rem;
+  border-left: 4px solid $brand-color;
+  background: #f7f9fb;
+}

@@ -1,0 +1,5 @@
+NOT CAPTURED YET
+
+This file is replaced with real output when you run:
+
+  tools/capture.sh smartdocs-ai 33-chat bash scripts/33-test-chat.sh

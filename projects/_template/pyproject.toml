@@ -1,0 +1,17 @@
+[project]
+name = "__PROJECT__"
+version = "0.1.0"
+description = "__TITLE__"
+requires-python = ">=3.12"
+dependencies = []          # runtime deps of deployed code go in a layer/container, not here
+
+[dependency-groups]
+dev   = ["pytest>=8", "boto3>=1.35"]
+infra = ["aws-cdk-lib>=2.170", "constructs>=10"]
+
+[tool.uv]
+package = false
+default-groups = ["dev", "infra"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

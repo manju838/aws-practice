@@ -1,0 +1,5 @@
+# Shell scripts and env files must keep LF endings even when checked out on Windows,
+# otherwise bash fails with "\r: command not found".
+*.sh        text eol=lf
+*.env       text eol=lf
+*.env.example text eol=lf

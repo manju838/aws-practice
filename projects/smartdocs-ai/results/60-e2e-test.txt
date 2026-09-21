@@ -1,0 +1,5 @@
+NOT CAPTURED YET
+
+This file is replaced with real output when you run:
+
+  tools/capture.sh smartdocs-ai 60-e2e-test bash scripts/60-e2e-test.sh

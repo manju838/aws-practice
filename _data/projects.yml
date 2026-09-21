@@ -1,0 +1,13 @@
+# ─────────────────────────────────────────────────────────────────────
+# PROJECT REGISTRY — drives the nav tabs AND the cards on the home page.
+# To add a project: run  tools/new-project.sh <folder-name> "<Title>"
+# (it appends an entry here for you), then fill in the fields.
+#
+#   status: planned | in-progress | done
+# ─────────────────────────────────────────────────────────────────────
+- title: SmartDocs AI
+  tab: SmartDocs AI              # label shown in the nav bar
+  url: /projects/smartdocs-ai/   # folder under projects/ (must end with /)
+  status: in-progress
+  summary: Serverless RAG assistant. Upload PDFs, ask questions, get answers grounded in your documents.
+  services: [S3, Lambda, FAISS, Bedrock, DynamoDB, API Gateway, CDK, CloudWatch, Secrets Manager]

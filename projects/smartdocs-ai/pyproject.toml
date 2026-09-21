@@ -1,0 +1,23 @@
+[project]
+name = "smartdocs-ai"
+version = "0.1.0"
+description = "Serverless RAG assistant on AWS: S3, Lambda, FAISS, Bedrock (Claude), DynamoDB, API Gateway"
+requires-python = ">=3.12"
+# The Lambda functions get their libraries from a layer (see [dependency-groups].layer),
+# so the project itself has no runtime dependencies to install.
+dependencies = []
+
+[dependency-groups]
+# Local tooling: `uv sync` installs dev + infra (see default-groups below)
+dev   = ["pytest>=8", "boto3>=1.35", "numpy", "faiss-cpu", "pymupdf"]
+infra = ["aws-cdk-lib>=2.170", "constructs>=10"]
+# Exactly what is baked into the Lambda layer (scripts/22-build-layer.sh). boto3 is not
+# listed because the Lambda runtime already provides it.
+layer = ["faiss-cpu", "pymupdf", "numpy"]
+
+[tool.uv]
+package = false                      # an application, not an installable library
+default-groups = ["dev", "infra"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "infra/tests"]

@@ -1,0 +1,28 @@
+# secrets & per-machine config
+config.env
+*.pem
+.env
+
+# build output
+_site/
+.jekyll-cache/
+.sass-cache/
+Gemfile.lock
+*.zip
+layer/
+cdk.out/
+
+# python / node
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# per-project generated files (zips, generated policies, API URL, CDK outputs)
+build/
