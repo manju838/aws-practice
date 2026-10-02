@@ -71,6 +71,67 @@
   color: $grey-color-dark;
 }
 
+// ── personal-notes sidebar ──────────────────────────────
+// Narrow screens: a compact "chip" row above the content.
+// Wide screens (>= 1280px): fixed vertical nav in the left margin.
+.notes-nav {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 12px 30px 0;
+  font-size: .9rem;
+}
+.notes-nav-title {
+  margin: 0 0 6px;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: $grey-color;
+}
+.notes-nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.notes-nav-link {
+  display: block;
+  padding: 3px 10px;
+  border: 1px solid $grey-color-light;
+  border-radius: 14px;
+  color: $text-color;
+  text-transform: capitalize;
+  text-decoration: none;
+  &:hover { border-color: $brand-color; color: $brand-color; text-decoration: none; }
+  &.active { background: $brand-color; border-color: $brand-color; color: #fff; }
+}
+@media (min-width: 1280px) {
+  .notes-nav {
+    position: fixed;
+    top: 110px;
+    left: calc(50% - 630px);   // 400px = half the content column, 210px = sidebar width, 20px gap
+    width: 210px;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    margin: 0;
+    padding: 0 12px 0 0;
+    border-right: 1px solid $grey-color-light;
+  }
+  .notes-nav-list { display: block; }
+  .notes-nav-list li { margin: 0; }
+  .notes-nav-link {
+    margin-bottom: 2px;
+    padding: 5px 10px;
+    border: 0;
+    border-left: 3px solid transparent;
+    border-radius: 0 4px 4px 0;
+    &:hover { background: #f4f6f8; border-left-color: $grey-color-light; }
+    &.active { background: #eef3f8; border-left-color: $brand-color; color: $brand-color; font-weight: 600; }
+  }
+}
+
 // ── content niceties ────────────────────────────────────
 table { display: block; overflow-x: auto; }
 .callout {

@@ -7,3 +7,4 @@
 docker ps
 tools/serve.sh
 ```
+4. The content will be available at ```http://localhost:4000/aws-practice/``` in your browser and auto reloads after every save.

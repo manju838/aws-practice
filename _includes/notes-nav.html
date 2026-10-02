@@ -1,0 +1,23 @@
+{%- comment -%}
+  Vertical sidebar listing every markdown file in personal-notes/.
+  Nothing to register: drop a .md file in personal-notes/ and it appears.
+  Order: by filename (prefix with 01-, 02-, ... to control order).
+  Label: the file's first "# Heading" (or `title:` front matter), else the filename.
+{%- endcomment -%}
+{%- assign note_pages = site.pages | where: "dir", "/personal-notes/" | where_exp: "p", "p.name contains '.md'" | sort: "path" -%}
+{%- if note_pages.size > 0 -%}
+<aside class="notes-nav" aria-label="Personal notes">
+  <h2 class="notes-nav-title">Personal notes</h2>
+  <ul class="notes-nav-list">
+    {%- for n in note_pages -%}
+      {%- assign label = n.title -%}
+      {%- unless label -%}
+        {%- assign label = n.name | split: "." | first | replace: "-", " " | replace: "_", " " -%}
+      {%- endunless -%}
+      <li>
+        <a class="notes-nav-link{% if n.url == page.url %} active{% endif %}" href="{{ n.url | relative_url }}">{{ label | escape }}</a>
+      </li>
+    {%- endfor -%}
+  </ul>
+</aside>
+{%- endif -%}
