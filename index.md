@@ -1,8 +1,11 @@
+<!-- 
+Site home. README.md is the GitHub landing page; this file is the website's.
+-->
+
 ---
 layout: page
 title: AWS Practice
 ---
-{% comment %} Site home. README.md is the GitHub landing page; this file is the website's. {% endcomment %}
 
 Hands-on AWS projects, **documented as they were built**: what I did, why, the
 commands, the results, and what went wrong. Each project is a tab above and
