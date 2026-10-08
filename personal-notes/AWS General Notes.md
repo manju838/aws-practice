@@ -1,5 +1,4 @@
-
-
+<!-- markdownlint-disable-file -->
 ## AWS General Notes
 
 ## Set up a profile per account
@@ -55,6 +54,7 @@ For each project, based on which profile is needed, use `export AWS_PROFILE=work
   | Condition (optional) | Extra requirements for the rule to apply              | Only from a certain IP address, or only with MFA                |
 
   Example JSON Policy Document:
+  {% raw %}
   ```json
   {
   "Version": "2012-10-17",
@@ -70,4 +70,6 @@ For each project, based on which profile is needed, use `export AWS_PROFILE=work
   ]
   }
   ```
+  {% endraw %}
+  
 

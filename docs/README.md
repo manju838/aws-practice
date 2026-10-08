@@ -10,9 +10,9 @@ This page is the contract. `projects/_template/` is a working copy of it.
 aws-practice/
 ├── README.md              GitHub landing page (plain markdown, no Liquid)
 ├── index.md               Website home (project cards, generated from the registry)
-├── _config.yml            Site config: theme, plugins, excludes
 ├── Gemfile                Ruby Dependencies are called gems and the list fo these gems are present in this file to be read by a ruby based bundler 
 ├── Gemfile.lock           Lock file for the ruby bundler
+├── _config.yml            Site config: theme, plugins, excludes
 ├── _data/projects.yml     THE project registry: one entry = one nav tab + one home card
 ├── _includes/             Header (tabs) (phase bar + prev/next)
 ├── _layouts/              project layout (phase bar + prev/next)

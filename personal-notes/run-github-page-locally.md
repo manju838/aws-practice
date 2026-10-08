@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # How to run Github Page locally?
 
 1. Start Docker Desktop
