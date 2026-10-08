@@ -1,12 +1,5 @@
 # Phase 1: Foundation
 
-| | |
-| --- | --- |
-| **Time budget** | 45 min |
-| **Actual time** | ⏳ |
-| **Cost** | about $0 (a few Claude tokens) |
-| **Status** | ⬜ Not started |
-
 ## Why this phase exists
 
 Almost every failure in the first attempt was a foundation problem: wrong credentials, a model the account could not call,

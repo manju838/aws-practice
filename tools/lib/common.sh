@@ -10,6 +10,10 @@
 # everything defined in the project's config.env, and the current directory
 # is PROJECT_DIR (so relative paths like build/x.zip always work, which also
 # avoids Windows/Git-Bash path-conversion problems with the AWS CLI).
+#
+# Multiple AWS accounts: set AWS_PROFILE=<name> in config.env (after running
+# `aws configure --profile <name>` once per account). It is picked up before
+# the account-ID lookup below, so each project talks to the right account.
 # ─────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
@@ -53,18 +57,29 @@ load_project_config() {
   [ -f "$PROJECT_DIR/config.env" ] || die "Missing $PROJECT_DIR/config.env. Run:  cp config.env.example config.env"
   need aws
 
-  # Account ID is looked up, never hardcoded. config.env may reference $ACCOUNT_ID.
-  ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text 2>/dev/null)" \
-    || die "AWS credentials are not working. Run 'aws configure', then 'aws sts get-caller-identity'."
-
-  # tr -d '\r' so a config.env saved with Windows line endings still works
+  # Pass 1: load config.env WITHOUT any line referencing ${ACCOUNT_ID} (it
+  # doesn't exist yet, so it would expand to empty and corrupt that value).
+  # This is enough to pick up AWS_PROFILE, PROJECT, AWS_REGION, etc., so the
+  # account lookup below runs against the right AWS account.
   set -a
   # shellcheck disable=SC1090
-  . <(tr -d '\r' < "$PROJECT_DIR/config.env")
+  . <(tr -d '\r' < "$PROJECT_DIR/config.env" | grep -v '\${ACCOUNT_ID}')
   set +a
 
   : "${PROJECT:?PROJECT must be set in config.env}"
   : "${AWS_REGION:?AWS_REGION must be set in config.env}"
+
+  # Account ID is looked up, never hardcoded. Uses AWS_PROFILE from config.env
+  # if one was set above, so multiple AWS accounts never collide.
+  ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text 2>/dev/null)" \
+    || die "AWS credentials are not working for profile '${AWS_PROFILE:-default}'. Run 'aws configure --profile ${AWS_PROFILE:-default}', then 'aws sts get-caller-identity --profile ${AWS_PROFILE:-default}'."
+
+  # Pass 2: re-source the full file now that ACCOUNT_ID exists, so lines like
+  # BUCKET=${PROJECT}-${ACCOUNT_ID} resolve correctly.
+  set -a
+  . <(tr -d '\r' < "$PROJECT_DIR/config.env")
+  set +a
+
   export AWS_DEFAULT_REGION="$AWS_REGION"
   export ACCOUNT_ID PROJECT_DIR
 

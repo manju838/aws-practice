@@ -2,9 +2,7 @@
 
 ## The goal
 
-Build a document Q&A assistant end to end on AWS, in a way that leaves nothing magic: no managed RAG service,
-no framework hiding the retrieval step. When it works you can say exactly what happens between "PDF uploaded"
-and "answer returned", and you can rebuild it from scratch with one command.
+Build a document Q&A assistant end to end on AWS from scratch.
 
 ## Why this project
 
