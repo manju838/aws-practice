@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Phase 1: Foundation
 
 ## Why this phase exists
@@ -26,7 +27,8 @@ See [conventions](../../docs/README.md).
 Work as an IAM admin user, never root. Confirm who you are:
 
 ```bash
-aws configure                       # region: ap-south-2, output: json
+# aws configure                       # region: ap-south-2, output: json
+export AWS_PROFILE=personal           # Saved AWS credentials as profiles, so loading the right credentials, see personal-notes/AWS General Notes.md
 aws sts get-caller-identity
 ```
 
@@ -37,7 +39,7 @@ account an access key on a non-root admin user is acceptable, but keep it out of
 
 ```bash
 cd projects/smartdocs-ai
-cp config.env.example config.env
+cp config.env.example config.env     # config.env.example is pushed to Github while config.env is always local, any forced env variable changes made based on each user wont be accidentally commited to Github
 uv sync
 uv run pytest                        # should report 49 passed, with no AWS access
 ```
@@ -51,26 +53,14 @@ set `url` and `baseurl` in `_config.yml`, push, and enable Pages.
 
 ### 5. Check Claude and Titan access
 
+Run the following:
 ```bash
 tools/capture.sh smartdocs-ai 10-bedrock-access bash scripts/10-check-bedrock.sh
 ```
 
-Run this as the admin user. The script lists your Anthropic inference profiles, calls every model in `CANDIDATE_MODELS`
-through the Converse API, and confirms Titan returns a 1024-number vector. It fails loudly if `CHAT_MODEL_ID` is not callable.
-
-Background you need, because it caused the original pause:
-
-* Bedrock no longer has a "request model access" page. Models are usable by default, and for third-party models AWS creates an
-  AWS Marketplace subscription **automatically on the first call**, made by whoever makes that call.
-* That is why this check runs as admin. The Lambda role deliberately has no Marketplace permissions, so it cannot create a
-  subscription itself; it needs the account to be subscribed already.
-* If a first call fails with `INVALID_PAYMENT_INSTRUMENT`, the account has no valid payment method. Fixing the payment method does
-  **not** repair the failed subscription. Go to AWS Marketplace, Manage subscriptions, cancel the failed Anthropic entries, then call again.
-* Newer Claude models are invoked through an **inference profile** ID with a prefix (`global.` routes across regions).
-  Set `CHAT_MODEL_ID` to an ID that step 5 shows working. Find the exact IDs with
-  `aws bedrock list-inference-profiles --query "inferenceProfileSummaries[?contains(inferenceProfileId,'anthropic')].inferenceProfileId"`.
-* The default is the Haiku 4.5 profile. The Sonnet 5 profile ID in the candidate list follows the naming pattern but was not
-  confirmed when this was written, so trust what the script reports.
+The script lists your Anthropic inference profiles, calls every model in config.env's `CANDIDATE_MODELS` through the Converse API, and confirms Titan returns a 1024-number vector. It fails loudly if `CHAT_MODEL_ID` is not callable.
+* Lambda rola has no Marketplace permissions, so it can't subscribe to a Bedrock model by itself.
+* AWS Marketplace subscription needs "Switching to Invoice" mode for payment, using Indian cards or UPI doesnt work as Indian rules dont allow true "Pay as you Go" permissions, i.e money cany be autodebited on the go, so raise a request to change payment method to "Bill by Invoice" in AWS Support. This is the most likely reason if you get `INVALID_PAYMENT_INSTRUMENT` error.
 
 ### 6. Clean slate
 
@@ -103,11 +93,8 @@ TODO(result): which candidate models worked and which failed, from [results/10-b
 
 TODO(result): the model ID chosen and why.
 
-TODO(result): screenshot of the live site home page (`assets/site-home.png`).
 
 ## Gotchas and lessons
 
-* TODO(result): anything that failed on the first call (payment, region, profile ID) and how it was fixed.
 * `cdk` "81 feature flags are not configured" is an informational message from newer CDK versions, not an error.
-* Git Bash rewrites arguments that look like paths (`/aws/lambda/...`). The shared script library turns that off.
 * On Windows, scripts must keep LF line endings; `.gitattributes` in this repo enforces it.

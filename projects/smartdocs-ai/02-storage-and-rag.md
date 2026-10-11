@@ -1,11 +1,6 @@
+<!-- markdownlint-disable-file -->
 # Phase 2: Storage and RAG
 
-| | |
-| --- | --- |
-| **Time budget** | 90 min |
-| **Actual time** | ⏳ |
-| **Cost** | about $0 (a few cents of Titan embeddings) |
-| **Status** | ⬜ Not started |
 
 ## Why this phase exists
 

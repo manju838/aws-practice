@@ -1,5 +1,42 @@
-NOT CAPTURED YET
+$ bash scripts/10-check-bedrock.sh
+# captured 2026-10-10T17:38:07Z (account IDs, keys and API ids redacted)
 
-This file is replaced with real output when you run:
 
-  tools/capture.sh smartdocs-ai 10-bedrock-access bash scripts/10-check-bedrock.sh
+==> Identity
+arn:aws:iam::<ACCOUNT_ID>:user/Endpoint_Deployment
+    region: ap-south-2
+
+==> Anthropic inference profiles visible in ap-south-2
+----------------------------------------------------------------
+|                     ListInferenceProfiles                    |
++----------------------------------------------------+---------+
+|  apac.anthropic.claude-3-5-sonnet-20241022-v2:0    |  ACTIVE |
+|  apac.anthropic.claude-sonnet-4-20250514-v1:0      |  ACTIVE |
+|  global.anthropic.claude-opus-4-5-20251101-v1:0    |  ACTIVE |
+|  global.anthropic.claude-opus-4-6-v1               |  ACTIVE |
+|  global.anthropic.claude-sonnet-4-5-20250929-v1:0  |  ACTIVE |
+|  global.anthropic.claude-fable-5                   |  ACTIVE |
+|  global.anthropic.claude-haiku-4-5-20251001-v1:0   |  ACTIVE |
+|  global.anthropic.claude-fable-5-1                 |  ACTIVE |
+|  in.anthropic.claude-sonnet-5                      |  ACTIVE |
+|  in.anthropic.claude-opus-5                        |  ACTIVE |
+|  in.anthropic.claude-haiku-4-5-20251001-v1:0       |  ACTIVE |
+|  global.anthropic.claude-opus-5-5                  |  ACTIVE |
+|  global.anthropic.claude-opus-5                    |  ACTIVE |
+|  global.anthropic.claude-opus-4-8                  |  ACTIVE |
+|  global.anthropic.claude-sonnet-5                  |  ACTIVE |
+|  global.anthropic.claude-opus-4-7                  |  ACTIVE |
+|  global.anthropic.claude-sonnet-4-6                |  ACTIVE |
+|  global.anthropic.claude-haiku-5-5                 |  ACTIVE |
+|  global.anthropic.claude-sonnet-5-5                |  ACTIVE |
++----------------------------------------------------+---------+
+
+==> Calling each candidate chat model (Converse API)
+    ✔ global.anthropic.claude-haiku-4-5-20251001-v1:0  ->  ready
+    ! global.anthropic.claude-sonnet-5  ->  FAILED: aws: [ERROR]: An error occurred (AccessDeniedException) when calling the Converse operation: anthropic.claude-sonnet-5 is not available for this account. You can explore other available models on Amaz
+    ✔ global.anthropic.claude-sonnet-4-5-20250929-v1:0  ->  ready
+
+==> Embedding model (amazon.titan-embed-text-v2:0)
+    ✔ returned a 1024-dimensional vector
+
+    ✔ CHAT_MODEL_ID (global.anthropic.claude-haiku-4-5-20251001-v1:0) works. Phase 1 complete.
