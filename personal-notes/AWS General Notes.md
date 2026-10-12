@@ -1,6 +1,10 @@
 <!-- markdownlint-disable-file -->
 ## AWS General Notes
 
+- Credentials can be classified into long-term permanent credentials (static) and temporary security credentials (dynamic).
+- **AWS Security Token Service (AWS STS)** produce and manage these temporary security credentials.
+- Temporary Security Credentials consist of an Access Key ID, a Secret Access Key, and a Session Token.
+
 ## Set up a profile per account
 
 ```bash
@@ -17,6 +21,7 @@ aws configure --profile work
 For each project, based on which profile is needed, use `export AWS_PROFILE=work` to set the profile for that terminal session.
 
 ![AWS Credential Management](./images/redacted-aws-screenshots.png)
+
 
 #### Note:
 
@@ -72,4 +77,35 @@ For each project, based on which profile is needed, use `export AWS_PROFILE=work
   ```
   {% endraw %}
   
+## AWS API Gateway:
 
+An API (Application Programming Interface) is simply a bridge that allows two software programs to talk to each other. The terms HTTP, REST, and WebSocket describe how that bridge is built and the rules for crossing it.
+
+  (1) **HTTP (Hypertext Transfer Protocol)** is the foundation of data exchange on the web. It is a **Request-Response** protocol.
+    - **HTTP API** (often called RPC - Remote Procedure Call) is any API that uses the HTTP protocol to transfer data over the internet.
+    - **How it works:** A client (like a browser) sends a request to a server, and the server sends a response back. Once the response is delivered, the connection usually closes.
+    - **Direction:** Unidirectional. The client must always initiate the conversation. The server cannot "call" the client to give it data it didn't ask for.
+  
+  (2) **REST (Representational State Transfer)** is not a protocol, but a style or set of rules for building APIs that almost always use the HTTP protocol.
+    - REST is not a replacement for HTTP. REST is a specific style of building an HTTP API. **All REST APIs are HTTP APIs, but not all HTTP APIs are REST APIs.**
+    - **How it works:** REST organizes data into "Resources" (like /users or /products). It uses standard HTTP methods to act on that data:
+      - GET (Read)
+      - POST (Create)
+      - PUT (Update)
+      - DELETE (Delete)
+    - **Statelessness:** This is a key rule of REST. The server doesn’t "remember" previous requests. Every single request must contain all the information needed to understand it (e.g., an API key or User ID).
+  
+  (3) **WebSocket** is a different protocol entirely. It provides a **persistent, two-way (full-duplex)** communication channel.
+
+    HTTP/REST APIs are terrible at one thing: Real-time communication.
+    If you are building a chat app using a REST API, your app has to constantly ask the server: "Are there new messages? Are there new messages? Are there new messages?" every single second. This is called **"polling"** and it drains batteries and overloads servers.
+    WebSockets solve this. A WebSocket API uses the ws:// or wss:// protocol instead of http://.
+
+    - **How it works:** It starts with an HTTP "handshake" to establish a connection, but then it upgrades the connection to a WebSocket. The connection stays open indefinitely.
+    - **Direction:** Bidirectional. Both the client and the server can send data at any time without waiting for the other to ask. 
+
+Amazon API Gateway is an AWS service for creating, publishing, maintaining, monitoring, and securing REST, HTTP, and WebSocket APIs at any scale.
+API Gateway acts as a "front door" for applications to access data, business logic, or functionality from your backend services, such as workloads running on Amazon Elastic Compute Cloud (Amazon EC2), code running on AWS Lambda, any web application, or real-time communication applications. Its tasks include traffic management, authorization and access control, monitoring, and API version management.
+
+![alt text](images/AWS-APIGateway-Architecture.png)
+AWS offers two main ways to build APIs: the older "REST API" (v1) and the newer "HTTP API" (v2).
