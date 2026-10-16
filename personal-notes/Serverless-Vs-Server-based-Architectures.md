@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 Serverless vs Server based Architectures:
 
 ![alt text](images/server-vs-serverless.png)
