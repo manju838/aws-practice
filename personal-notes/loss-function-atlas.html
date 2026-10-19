@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Loss Function Atlas</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#0c0e13;
+  --bg2:#13161e;
+  --bg3:#191d27;
+  --bg4:#212635;
+  --ink:#e9e7e0;
+  --dim:#9396a3;
+  --dim2:#6b6e7c;
+  --line:#2a2f3c;
+  --line2:#373d4e;
+  --gold:#e7b24c;
+  --c-reg:#54c6d8;
+  --c-cls:#e7b24c;
+  --c-gen:#e889bf;
+  --c-met:#7fd684;
+  --c-det:#f08a4f;
+  --c-seq:#ab8ff0;
+  --c-pref:#ec6f63;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Hanken Grotesk',system-ui,sans-serif;
+  font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(900px 520px at 78% -8%, rgba(231,178,76,.10), transparent 70%),
+    radial-gradient(700px 480px at 8% 4%, rgba(84,198,216,.07), transparent 70%),
+    linear-gradient(rgba(255,255,255,.014) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.014) 1px, transparent 1px);
+  background-size:auto,auto,46px 46px,46px 46px;
+  background-attachment:fixed;
+}
+.wrap{max-width:1200px;margin:0 auto;padding:0 26px;}
+::selection{background:var(--gold);color:#0c0e13;}
+
+/* ---------- HERO ---------- */
+.hero{padding:78px 0 42px;}
+.home-link{
+  display:inline-block;margin-bottom:22px;
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--dim2);text-decoration:none;
+}
+.home-link:hover{color:var(--gold);}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:22px;
+  display:flex;align-items:center;gap:14px;
+}
+.eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent);}
+h1.title{
+  font-family:'Fraunces',serif;font-weight:600;
+  font-size:clamp(2.9rem,7.4vw,5.4rem);line-height:.99;letter-spacing:-.022em;
+}
+h1.title em{font-style:italic;font-weight:500;color:var(--gold);}
+.subtitle{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:500;
+  font-size:clamp(1.15rem,2.5vw,1.6rem);color:var(--dim);
+  margin-top:18px;max-width:34ch;line-height:1.35;
+}
+.lead{
+  margin-top:26px;max-width:62ch;color:var(--dim);font-size:1.04rem;
+}
+.lead b{color:var(--ink);font-weight:600;}
+.stats{
+  display:flex;flex-wrap:wrap;gap:0;margin-top:34px;
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  background:rgba(255,255,255,.015);width:fit-content;
+}
+.stat{padding:14px 26px;border-right:1px solid var(--line);}
+.stat:last-child{border-right:none;}
+.stat .n{font-family:'Fraunces',serif;font-size:1.85rem;font-weight:600;line-height:1;}
+.stat .l{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--dim2);margin-top:7px;}
+
+/* ---------- INTRO NOTE ---------- */
+.note{
+  margin:30px 0 8px;border:1px solid var(--line);border-left:3px solid var(--gold);
+  background:var(--bg2);border-radius:0 12px 12px 0;padding:22px 26px;max-width:none;
+}
+.note h3{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:10px;font-weight:600;}
+.note p{color:var(--dim);font-size:.97rem;}
+.note p + p{margin-top:9px;}
+.note b{color:var(--ink);}
+
+/* ---------- SECTION HEADS ---------- */
+.shead{margin:74px 0 8px;}
+.shead .kicker{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--dim2);
+}
+.shead h2{
+  font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.8rem,4vw,2.7rem);
+  letter-spacing:-.02em;margin-top:6px;
+}
+
+/* ---------- FLOWCHART ---------- */
+.fc{padding:14px 0 10px;}
+.fc-root-row{display:flex;justify-content:center;}
+.fc-root{
+  background:var(--bg3);border:1px solid var(--line2);border-radius:13px;
+  padding:16px 30px;text-align:center;position:relative;
+  box-shadow:0 14px 40px -22px rgba(0,0,0,.9);
+}
+.fc-root .q{font-family:'Fraunces',serif;font-style:italic;font-size:1.32rem;color:var(--ink);}
+.fc-root .sub{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.fc-trunk{width:2px;height:30px;background:var(--line2);margin:0 auto;}
+.fc-scroll{overflow-x:auto;padding-bottom:14px;scrollbar-width:thin;
+  scrollbar-color:var(--line2) transparent;}
+.fc-scroll::-webkit-scrollbar{height:7px;}
+.fc-scroll::-webkit-scrollbar-thumb{background:var(--line2);border-radius:4px;}
+.fc-branches{
+  display:flex;gap:24px;justify-content:center;min-width:max-content;
+  position:relative;padding-top:30px;margin:0 auto;
+}
+.fc-bus{position:absolute;top:0;left:111px;right:111px;height:2px;background:var(--line2);}
+.fc-node{
+  --w:222px;width:var(--w);background:var(--bg2);border:1px solid var(--line);
+  border-top:3px solid var(--nc);border-radius:11px;padding:17px 17px 16px;
+  position:relative;cursor:pointer;text-align:left;color:inherit;font:inherit;
+  transition:transform .16s ease,border-color .16s ease,background .16s ease;
+}
+.fc-node::before{content:"";position:absolute;top:-30px;left:50%;width:2px;height:30px;
+  background:var(--line2);transform:translateX(-50%);}
+.fc-node:hover{transform:translateY(-4px);background:var(--bg3);border-color:var(--line2);}
+.fc-node .idx{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--nc);
+  letter-spacing:.14em;}
+.fc-node .name{font-family:'Fraunces',serif;font-weight:600;font-size:1.18rem;
+  margin:3px 0 7px;letter-spacing:-.01em;}
+.fc-node .qline{font-size:.86rem;color:var(--dim);line-height:1.4;min-height:2.5em;}
+.fc-node .cnt{
+  margin-top:11px;font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:.1em;color:var(--dim2);display:flex;align-items:center;gap:7px;
+}
+.fc-node .cnt::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--nc);}
+.fc-node .go{position:absolute;right:14px;bottom:14px;color:var(--nc);font-size:1.05rem;
+  opacity:.6;transition:opacity .16s,transform .16s;}
+.fc-node:hover .go{opacity:1;transform:translateX(3px);}
+.fc-hint{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:.16em;color:var(--dim2);margin-top:4px;text-transform:uppercase;}
+
+/* ---------- NAV ---------- */
+.catnav{
+  position:sticky;top:0;z-index:30;margin-top:30px;
+  background:rgba(12,14,19,.86);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+}
+.catnav-in{display:flex;align-items:center;gap:10px;padding:12px 26px;
+  max-width:1200px;margin:0 auto;flex-wrap:wrap;}
+.pill{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em;
+  border:1px solid var(--line2);background:var(--bg2);color:var(--dim);
+  padding:6px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;
+  transition:color .14s,border-color .14s,background .14s;
+}
+.pill:hover{color:var(--ink);border-color:var(--pc);}
+.pill .dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--pc);margin-right:6px;vertical-align:middle;}
+.nav-spacer{flex:1;}
+.search{
+  background:var(--bg2);border:1px solid var(--line2);border-radius:20px;
+  padding:6px 14px;color:var(--ink);font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;width:190px;outline:none;transition:border-color .14s,width .2s;
+}
+.search:focus{border-color:var(--gold);width:230px;}
+.search::placeholder{color:var(--dim2);}
+.toggle-all{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em;
+  background:none;border:1px solid var(--line2);color:var(--dim);
+  padding:6px 12px;border-radius:20px;cursor:pointer;transition:color .14s,border-color .14s;
+}
+.toggle-all:hover{color:var(--ink);border-color:var(--gold);}
+
+/* ---------- CATEGORY SECTIONS ---------- */
+.cat{padding-top:64px;scroll-margin-top:62px;}
+.cathead{display:flex;align-items:flex-start;gap:18px;margin-bottom:6px;}
+.cat-num{
+  font-family:'Fraunces',serif;font-size:3.1rem;font-weight:600;line-height:.85;
+  color:var(--cc);opacity:.34;flex-shrink:0;
+}
+.cathead-txt h2{
+  font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.5rem,3.4vw,2.15rem);
+  letter-spacing:-.018em;
+}
+.cathead-txt .crit{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--cc);margin-top:5px;
+}
+.cat-blurb{color:var(--dim);max-width:70ch;margin:10px 0 24px;font-size:.99rem;}
+.cat-rule{height:2px;background:linear-gradient(90deg,var(--cc),transparent);
+  border-radius:2px;margin-bottom:24px;opacity:.5;}
+
+.grid{
+  display:grid;gap:16px;align-items:start;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));
+}
+.loss{
+  background:var(--bg2);border:1px solid var(--line);border-radius:13px;
+  overflow:hidden;transition:border-color .16s ease,box-shadow .16s ease;
+}
+.loss:hover{border-color:var(--line2);}
+.loss.open{border-color:var(--cc);box-shadow:0 18px 44px -30px rgba(0,0,0,.95);}
+.loss-head{
+  width:100%;text-align:left;background:none;border:none;color:inherit;font:inherit;
+  cursor:pointer;padding:17px 18px;display:flex;align-items:flex-start;gap:12px;
+}
+.loss-head .marker{
+  width:9px;height:9px;border-radius:2px;background:var(--cc);
+  margin-top:6px;flex-shrink:0;transform:rotate(45deg);
+}
+.loss-htext{flex:1;min-width:0;}
+.loss-name{font-family:'Fraunces',serif;font-weight:600;font-size:1.12rem;
+  letter-spacing:-.01em;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
+.loss-year{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.06em;
+  color:var(--cc);border:1px solid var(--cc);border-radius:4px;padding:1px 5px;
+  opacity:.8;}
+.loss-tag{font-size:.89rem;color:var(--dim);margin-top:4px;line-height:1.4;}
+.loss-chev{color:var(--dim2);font-size:1.1rem;transition:transform .28s ease,color .16s;
+  flex-shrink:0;margin-top:2px;}
+.loss.open .loss-chev{transform:rotate(90deg);color:var(--cc);}
+
+.loss-bodywrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .34s ease;}
+.loss.open .loss-bodywrap{grid-template-rows:1fr;}
+.loss-body{overflow:hidden;}
+.loss-inner{padding:2px 18px 19px;}
+.formula{
+  background:var(--bg);border:1px solid var(--line);border-radius:9px;
+  padding:16px 14px;margin-bottom:15px;overflow-x:auto;
+  display:flex;justify-content:center;
+}
+.formula .katex{font-size:1.04em;color:var(--ink);}
+.formula-fallback{
+  font-family:'JetBrains Mono',monospace;font-size:.92rem;line-height:1.95;
+  color:var(--ink);text-align:center;white-space:normal;word-break:break-word;
+}
+.frow{margin-bottom:11px;}
+.frow:last-child{margin-bottom:0;}
+.flabel{
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--cc);margin-bottom:3px;
+}
+.ftext{font-size:.93rem;color:var(--ink);line-height:1.55;}
+.ftext.dimmed{color:var(--dim);}
+.frow.warn{
+  background:rgba(231,178,76,.06);border:1px solid rgba(231,178,76,.22);
+  border-radius:8px;padding:10px 12px;
+}
+.frow.warn .flabel{color:var(--gold);}
+.frow.warn .ftext{color:var(--dim);font-size:.9rem;}
+
+/* ---------- FOOTER ---------- */
+footer{
+  margin-top:80px;border-top:1px solid var(--line);padding:40px 0 60px;
+  color:var(--dim2);font-size:.86rem;
+}
+footer .ff{font-family:'Fraunces',serif;font-style:italic;color:var(--dim);
+  font-size:1.05rem;margin-bottom:10px;}
+footer code{font-family:'JetBrains Mono',monospace;color:var(--dim);font-size:.82rem;}
+.noresults{display:none;text-align:center;padding:60px 0;color:var(--dim);
+  font-family:'Fraunces',serif;font-style:italic;font-size:1.2rem;}
+
+@media(max-width:680px){
+  .wrap{padding:0 18px;}
+  .hero{padding:54px 0 30px;}
+  .cat-num{font-size:2.3rem;}
+  .cathead{gap:12px;}
+  .catnav-in{padding:10px 18px;}
+  .search{width:140px;}
+  .search:focus{width:160px;}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <a class="home-link" href="../">&larr; AWS Practice</a>
+    <div class="eyebrow">Deep Learning Reference · 2016–2026</div>
+    <h1 class="title">The Loss<br>Function <em>Atlas</em></h1>
+    <p class="subtitle">A field guide to the objectives that train modern neural networks.</p>
+    <p class="lead">Every model learns by minimizing a number. <b>Which number you choose decides what the model becomes.</b> This atlas sorts the loss functions you'll actually meet into seven families — start from what your model is <i>doing</i>, follow the branch, read the formula.</p>
+    <div class="stats">
+      <div class="stat"><div class="n">35</div><div class="l">Loss Functions</div></div>
+      <div class="stat"><div class="n">7</div><div class="l">Families</div></div>
+      <div class="stat"><div class="n">2006–24</div><div class="l">Era Covered</div></div>
+    </div>
+  </header>
+
+  <div class="note">
+    <h3>How to read this · and where your notes fit</h3>
+    <p>Your three categories map cleanly onto this map. <b>Reconstruction loss</b> lives in the <i>Regression</i> family (pixel-level: MSE/MAE) and the <i>Generative</i> family (feature-level: Perceptual loss). <b>Regularization loss</b> is the KL term in the <i>Generative</i> family. <b>Contrastive loss</b> is the whole <i>Metric / Embedding</i> family.</p>
+    <p>The picture below is the decision tree. The number you minimize follows from one question: <b>what is the model actually producing?</b> Tap any branch to jump to its losses; tap any loss card to expand its formula and usage.</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="shead">
+    <div class="kicker">// The Decision Tree</div>
+    <h2>Start here: what is your model doing?</h2>
+  </div>
+
+  <div class="fc">
+    <div class="fc-root-row">
+      <div class="fc-root">
+        <div class="sub">Root question</div>
+        <div class="q">&ldquo;What does the output represent?&rdquo;</div>
+      </div>
+    </div>
+    <div class="fc-trunk"></div>
+    <div class="fc-scroll">
+      <div class="fc-branches" id="fcBranches"></div>
+    </div>
+    <div class="fc-hint">↔ scroll the branches</div>
+  </div>
+</div>
+
+<nav class="catnav">
+  <div class="catnav-in" id="catnav">
+    <div class="nav-spacer"></div>
+    <input type="text" class="search" id="search" placeholder="filter losses…">
+    <button class="toggle-all" id="toggleAll">expand all</button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <main id="sections"></main>
+  <div class="noresults" id="noResults">No loss functions match that filter.</div>
+  <footer>
+    <div class="ff">&ldquo;The model does not know what you want — it only knows what you measured.&rdquo;</div>
+    <p>Formulas are in standard form; constants like batch-size normalizers are dropped for clarity. Families are organized by what the model produces, not by year. Many real systems combine several of these (e.g. a diffusion model with perceptual + noise-prediction terms; a detector with focal + CIoU).</p>
+    <p style="margin-top:10px;"><code>The Loss Function Atlas · regression · classification · generative · metric · detection · sequence · preference</code></p>
+  </footer>
+</div>
+
+<script>
+/* Wait for DOM + the deferred KaTeX script to finish loading before building. */
+document.addEventListener('DOMContentLoaded', function(){
+const r = String.raw;
+
+/* ---- Unicode fallback, used only if KaTeX is unavailable ---- */
+function prettyMath(s){
+  s = s
+    .replace(/\\mathcal\{([^{}]*)\}/g,'$1')
+    .replace(/\\mathrm\{([^{}]*)\}/g,'$1')
+    .replace(/\\mathbb\{([^{}]*)\}/g,'$1')
+    .replace(/\\text\{([^{}]*)\}/g,'$1')
+    .replace(/\\operatorname\{([^{}]*)\}/g,'$1')
+    .replace(/\\underbrace\{([^{}]*)\}_\{[^{}]*\}/g,'$1')
+    .replace(/\\hat\{([^{}]*)\}/g,'$1\u0302')
+    .replace(/\\bar\{([^{}]*)\}/g,'$1\u0305')
+    .replace(/\\overline\{([^{}]*)\}/g,'$1\u0305')
+    .replace(/\\tfrac\{([^{}]*)\}\{([^{}]*)\}/g,'($1)/($2)')
+    .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g,'($1)/($2)')
+    .replace(/\\begin\{cases\}|\\end\{cases\}/g,'')
+    .replace(/\\left|\\right/g,'')
+    .replace(/\\!|\\,|\\;|\\:|\\quad|\\qquad/g,'')
+    .replace(/\\Bigg|\\bigg|\\Big|\\big/g,'')
+    .replace(/\\\\/g,'   |   ')
+    .replace(/&/g,' ');
+  var sym={sum:'\u03A3',prod:'\u03A0',sigma:'\u03C3',mu:'\u03BC',beta:'\u03B2',
+    alpha:'\u03B1',gamma:'\u03B3',delta:'\u03B4',Delta:'\u0394',tau:'\u03C4',
+    epsilon:'\u03B5',varepsilon:'\u03B5',theta:'\u03B8',rho:'\u03C1',lambda:'\u03BB',
+    phi:'\u03C6',pi:'\u03C0',cdot:'\u00B7',times:'\u00D7',nabla:'\u2207',
+    partial:'\u2202',top:'T',in:'\u2208',notin:'\u2209',ne:'\u2260',
+    le:'\u2264',ge:'\u2265',approx:'\u2248',to:'\u2192',infty:'\u221E',
+    log:'log',exp:'exp',min:'min',max:'max',cosh:'cosh',cos:'cos',sin:'sin',
+    ldots:'\u2026',cdots:'\u22EF'};
+  s = s.replace(/\\([a-zA-Z]+)/g,function(m,w){ return sym[w]!==undefined?sym[w]:''; });
+  s = s.replace(/\\\|/g,'\u2016').replace(/\\\{/g,'{').replace(/\\\}/g,'}');
+  s = s.replace(/\^\{([^{}]*)\}/g,'^($1)').replace(/_\{([^{}]*)\}/g,'_($1)');
+  s = s.replace(/[{}]/g,'').replace(/\s+/g,' ').trim();
+  return s;
+}
+function renderFormula(latex, el){
+  if(typeof katex !== 'undefined' && katex.render){
+    try{ katex.render(latex, el, {displayMode:true, throwOnError:false}); return; }
+    catch(e){ /* fall through to text fallback */ }
+  }
+  el.classList.add('formula-fallback');
+  el.textContent = prettyMath(latex);
+}
+
+const DATA = [
+  {
+    id:"regression", color:"var(--c-reg)", short:"Regression",
+    name:"Regression & Pixel Reconstruction",
+    q:"Output is a continuous number (or pixel).",
+    crit:"Output \u2208 \u211D \u2014 distance, intensity, price, a pixel value",
+    blurb:"The model predicts a real value and you want it close to a target. This is also where low-level pixel reconstruction lives \u2014 comparing an autoencoder's output to its input pixel-by-pixel.",
+    losses:[
+      { n:"Mean Squared Error (L2)", y:"classic",
+        t:"Squared error \u2014 the default regressor.",
+        f:r`\mathcal{L}=\frac{1}{n}\sum_{i=1}^{n}\left(y_i-\hat{y}_i\right)^2`,
+        what:"Averages the squared gap between prediction and target. Because errors are squared, a few large mistakes dominate the gradient.",
+        where:"Generic regression, autoencoder pixel reconstruction, value-function fitting in RL.",
+        note:"Very sensitive to outliers, and on images it yields blurry, over-smoothed outputs \u2014 it averages plausible answers instead of committing." },
+      { n:"Mean Absolute Error (L1)", y:"classic",
+        t:"Absolute error \u2014 robust and steady.",
+        f:r`\mathcal{L}=\frac{1}{n}\sum_{i=1}^{n}\left|y_i-\hat{y}_i\right|`,
+        what:"Averages the absolute gap. Every error contributes linearly, so outliers don't get extra leverage.",
+        where:"Robust regression; the L1 pixel term in pix2pix and other image-to-image models.",
+        note:"The gradient magnitude stays constant even near the optimum, which can make the last bit of convergence jittery." },
+      { n:"Huber / Smooth L1", y:"2015",
+        t:"Quadratic up close, linear far away.",
+        f:r`\mathcal{L}_\delta=\begin{cases}\tfrac{1}{2}(y-\hat{y})^2 & |y-\hat{y}|\le\delta\\[4pt]\delta\,|y-\hat{y}|-\tfrac{1}{2}\delta^2 & \text{otherwise}\end{cases}`,
+        what:"Behaves like MSE for small residuals (smooth gradients) and like MAE beyond a threshold \u03B4 (outlier robustness).",
+        where:"Bounding-box regression in Fast/Faster R-CNN; DQN and other RL value targets.",
+        note:"You must choose \u03B4 \u2014 it sets the residual size at which the loss switches from quadratic to linear." },
+      { n:"Log-Cosh", y:"\u2014",
+        t:"A smooth Huber with no knob to tune.",
+        f:r`\mathcal{L}=\sum_{i}\log\!\big(\cosh(\hat{y}_i-y_i)\big)`,
+        what:"log(cosh(error)) acts like \u00BD\u00B7error\u00B2 for small errors and like |error| for large ones \u2014 smooth and twice-differentiable everywhere.",
+        where:"Regression wanting Huber-style robustness without picking a \u03B4 threshold.",
+        note:"Slightly more compute than MSE; in practice the advantage over Huber is usually marginal." },
+      { n:"Quantile / Pinball", y:"\u2014",
+        t:"Predict an interval, not just a point.",
+        f:r`\mathcal{L}_\tau=\max\!\big(\tau(y-\hat{y}),\,(\tau-1)(y-\hat{y})\big)`,
+        what:"Weights over- and under-prediction asymmetrically, so the model learns a chosen quantile \u03C4 instead of the mean.",
+        where:"Probabilistic forecasting, prediction intervals, demand and risk modeling.",
+        note:"Train several \u03C4 values (e.g. 0.1 / 0.5 / 0.9) for a full interval; predicted quantiles can occasionally cross." }
+    ]
+  },
+  {
+    id:"classification", color:"var(--c-cls)", short:"Classification",
+    name:"Classification",
+    q:"Output is a discrete class or token.",
+    crit:"Output \u2208 {classes} \u2014 a label, a category, a next token",
+    blurb:"The model assigns inputs to discrete categories. Almost everything here is a relative of cross-entropy, tweaked to handle imbalance, overconfidence, or margins.",
+    losses:[
+      { n:"Cross-Entropy (Softmax / NLL)", y:"classic",
+        t:"The default for classifiers and language models.",
+        f:r`\mathcal{L}=-\sum_{c=1}^{K}y_c\log(\hat{y}_c)=-\log(\hat{y}_{\text{true}})`,
+        what:"The negative log-probability the model assigns to the correct class. Minimized when the model is both confident and right.",
+        where:"Multi-class image classification, and next-token prediction in every modern LLM.",
+        note:"With one-hot targets it reduces to NLL after a softmax. Left unchecked it pushes logits toward overconfidence." },
+      { n:"Binary Cross-Entropy (Log Loss)", y:"classic",
+        t:"Independent yes/no scoring per class.",
+        f:r`\mathcal{L}=-\frac{1}{n}\sum_{i}\big[y_i\log\hat{y}_i+(1-y_i)\log(1-\hat{y}_i)\big]`,
+        what:"Cross-entropy for independent binary decisions, each squashed through a sigmoid.",
+        where:"Binary and multi-label classification, GAN discriminators, per-pixel segmentation masks.",
+        note:"For multi-label tasks, apply it per class \u2014 do not use a softmax, since labels aren't mutually exclusive." },
+      { n:"Focal Loss", y:"2017",
+        t:"Cross-entropy that ignores the easy wins.",
+        f:r`\mathrm{FL}(p_t)=-\alpha_t\,(1-p_t)^{\gamma}\log(p_t)`,
+        what:"Adds a (1\u2212p\u209C)^\u03B3 modulating factor that down-weights already-confident examples, so rare and hard cases drive the gradient.",
+        where:"Dense object detection (RetinaNet); any task with extreme foreground/background imbalance.",
+        note:"\u03B3 controls focusing strength; \u03B3 = 0 recovers plain cross-entropy. Typical \u03B3 \u2248 2." },
+      { n:"Label-Smoothing Cross-Entropy", y:"2016",
+        t:"Targets that aren't 100% certain.",
+        f:r`y_k^{\text{LS}}=(1-\varepsilon)\,y_k+\frac{\varepsilon}{K}`,
+        what:"Softens hard 0/1 targets by a small \u03B5, so the model stops chasing infinite logits for the correct class.",
+        where:"Transformer training, large-scale ImageNet classifiers \u2014 improves calibration and generalization.",
+        note:"Too much smoothing collapses useful inter-class structure in the learned embeddings." },
+      { n:"Hinge Loss (SVM)", y:"classic",
+        t:"Max-margin, not probability.",
+        f:r`\mathcal{L}=\max\!\big(0,\;1-y\cdot\hat{y}\big),\qquad y\in\{-1,+1\}`,
+        what:"Penalizes any prediction not on the correct side of the boundary by a full margin; loss is exactly zero once safely classified.",
+        where:"SVM-style linear classifiers and some max-margin deep heads.",
+        note:"Outputs a score, not a probability \u2014 there's no calibrated confidence to read off." },
+      { n:"Poly Loss", y:"2022",
+        t:"Cross-entropy with a tunable polynomial term.",
+        f:r`\mathcal{L}_{\text{poly}}=\mathcal{L}_{\text{CE}}+\varepsilon_1\,(1-p_t)`,
+        what:"Views CE and Focal as a Taylor series and exposes the leading polynomial coefficient as a single tunable knob.",
+        where:"A near drop-in upgrade to CE/Focal across classification, detection and segmentation.",
+        note:"The single \u03B5\u2081 hyperparameter often needs only light tuning to beat the baseline." },
+      { n:"KL Divergence (as classification)", y:"classic",
+        t:"Match a whole target distribution.",
+        f:r`D_{\mathrm{KL}}(P\,\|\,Q)=\sum_{x}P(x)\log\frac{P(x)}{Q(x)}`,
+        what:"Measures how far a predicted distribution Q sits from a reference P. Zero only when the two are identical.",
+        where:"Knowledge distillation (matching a teacher's soft labels), VAEs, policy regularization in RL.",
+        note:"Not a true distance \u2014 it is asymmetric: D_KL(P\u2016Q) \u2260 D_KL(Q\u2016P)." }
+    ]
+  },
+  {
+    id:"generative", color:"var(--c-gen)", short:"Generative",
+    name:"Generative & Distribution Matching",
+    q:"Model generates data or matches a distribution.",
+    crit:"Output is a sample \u2014 an image, latent, or denoised signal",
+    blurb:"The model produces new data and you can't just compare to one ground truth. These losses match distributions, fool critics, or compare in feature space. Reconstruction loss (feature-level) and regularization loss (KL) both live here.",
+    losses:[
+      { n:"ELBO (VAE Loss)", y:"2014",
+        t:"Reconstruct well, stay near the prior.",
+        f:r`\mathcal{L}=\underbrace{\mathbb{E}_{q}\!\left[\log p(x\mid z)\right]}_{\text{reconstruction}}-\underbrace{D_{\mathrm{KL}}\!\left(q(z\mid x)\,\|\,p(z)\right)}_{\text{regularization}}`,
+        what:"The evidence lower bound: a reconstruction term plus a KL term that pulls the latent posterior toward a prior.",
+        where:"Training variational autoencoders and the encoders of latent-diffusion models.",
+        note:"This is exactly the reconstruction-plus-regularization split from your notes, written as one objective." },
+      { n:"KL Latent Regularizer", y:"2014",
+        t:"Force the bottleneck into a known shape.",
+        f:r`D_{\mathrm{KL}}=-\tfrac{1}{2}\sum_{j}\big(1+\log\sigma_j^2-\mu_j^2-\sigma_j^2\big)`,
+        what:"Pulls each latent dimension's posterior toward a unit Gaussian, making the latent space continuous and directly samplable.",
+        where:"The regularization half of a VAE \u2014 the reason a VAE can generate where a plain autoencoder cannot.",
+        note:"Too strong \u2192 posterior collapse (latents ignored); too weak \u2192 empty holes in the latent space that decode to garbage." },
+      { n:"Adversarial Loss (GAN)", y:"2014",
+        t:"A discriminator grades your fakes.",
+        f:r`\min_G\max_D\;\mathbb{E}_{x}\!\left[\log D(x)\right]+\mathbb{E}_{z}\!\left[\log(1-D(G(z)))\right]`,
+        what:"Generator and discriminator play a min-max game; the generator improves by fooling a critic that keeps getting better.",
+        where:"GAN image synthesis, super-resolution, image-to-image translation.",
+        note:"The non-saturating variant \u2014 generator maximizes log D(G(z)) \u2014 is what's used in practice for healthier early gradients." },
+      { n:"Wasserstein Loss (WGAN / WGAN-GP)", y:"2017",
+        t:"Earth-mover distance for stable GANs.",
+        f:r`\mathcal{L}=\mathbb{E}_{x}[D(x)]-\mathbb{E}_{z}[D(G(z))]+\lambda\,\mathbb{E}_{\hat{x}}\big[(\|\nabla D(\hat{x})\|_2-1)^2\big]`,
+        what:"Swaps the JS-divergence game for the Wasserstein distance. The critic must be 1-Lipschitz \u2014 WGAN-GP enforces this with a gradient penalty.",
+        where:"GAN training that suffers from instability or mode collapse.",
+        note:"The critic outputs an unbounded score, not a probability; the loss value tracks sample quality." },
+      { n:"LSGAN / Hinge GAN Loss", y:"2017",
+        t:"Smoother adversarial objectives.",
+        f:r`\mathcal{L}_D^{\text{hinge}}=-\mathbb{E}_x[\min(0,-1+D(x))]-\mathbb{E}_z[\min(0,-1-D(G(z)))]`,
+        what:"LSGAN uses a least-squares critic; the hinge version uses margins. Both give better-behaved gradients than vanilla log-loss.",
+        where:"The discriminators of SAGAN, BigGAN and StyleGAN-era models.",
+        note:"Hinge GAN loss is the de-facto default in most large modern GANs." },
+      { n:"Perceptual / Feature Loss", y:"2016",
+        t:"Be conceptually right, not pixel-right.",
+        f:r`\mathcal{L}_{\text{feat}}=\sum_{j}\frac{1}{C_jH_jW_j}\big\|\phi_j(\hat{y})-\phi_j(y)\big\|_2^2`,
+        what:"Compares deep feature maps \u03C6 (e.g. from VGG-19) of output vs target instead of raw pixels, so it tolerates small pixel shifts.",
+        where:"Super-resolution, style transfer, image-to-image generation.",
+        note:"This is the feature-reconstruction idea from your notes \u2014 it lets the model be 'pixel-wrong but conceptually right'." },
+      { n:"Style (Gram-Matrix) Loss", y:"2016",
+        t:"Match texture, ignore layout.",
+        f:r`\mathcal{L}_{\text{style}}=\sum_{j}\big\|G_j(\hat{y})-G_j(y)\big\|_F^2,\qquad G=\phi\,\phi^{\top}`,
+        what:"Compares Gram matrices (feature correlations), which capture style and texture independently of where things sit in the image.",
+        where:"Neural style transfer and texture synthesis.",
+        note:"Usually combined with a perceptual content loss \u2014 one term fixes texture, the other fixes structure." },
+      { n:"Diffusion Loss (Noise Prediction)", y:"2020",
+        t:"Just predict the noise.",
+        f:r`\mathcal{L}_{\text{simple}}=\mathbb{E}_{t,x_0,\epsilon}\big[\|\epsilon-\epsilon_\theta(x_t,t)\|^2\big]`,
+        what:"At a random timestep t, the network predicts the noise added to a sample. A plain MSE on that noise trains the entire generator.",
+        where:"DDPM, Stable Diffusion and modern diffusion / flow models. The v-prediction objective is a related variant.",
+        note:"Despite being a simple MSE, it is today's strongest image-generation objective \u2014 it sidesteps GAN instability entirely." }
+    ]
+  },
+  {
+    id:"metric", color:"var(--c-met)", short:"Metric",
+    name:"Metric, Contrastive & Embedding",
+    q:"You are organizing an embedding space.",
+    crit:"Output is a vector \u2014 and geometry between vectors is the goal",
+    blurb:"The model maps inputs to vectors, and you care about distances: related things should be close, unrelated things far. This is the entire contrastive-loss family from your notes.",
+    losses:[
+      { n:"Contrastive Loss (Pairwise)", y:"2006",
+        t:"Pull pairs together, push pairs apart.",
+        f:r`\mathcal{L}=(1-Y)\tfrac{1}{2}D^2+Y\,\tfrac{1}{2}\max(0,\,m-D)^2`,
+        what:"Given a pair, it shrinks the distance D if they are similar, and pushes it apart up to a margin m if they are dissimilar.",
+        where:"Siamese networks; signature, fingerprint and face verification.",
+        note:"Operates on pairs only \u2014 once a dissimilar pair is past the margin it contributes nothing." },
+      { n:"Triplet Loss", y:"2015",
+        t:"Anchor closer to positive than to negative.",
+        f:r`\mathcal{L}=\max\!\big(0,\;D(a,p)-D(a,n)+\alpha\big)`,
+        what:"Enforces that an anchor sits nearer its positive than its negative by at least a margin \u03B1 \u2014 it ranks relative distances.",
+        where:"Face recognition (FaceNet), image and product retrieval.",
+        note:"Needs hard- or semi-hard-negative mining, or it spends training on trivially-satisfied triplets." },
+      { n:"InfoNCE / NT-Xent", y:"2018",
+        t:"One positive against many negatives.",
+        f:r`\mathcal{L}=-\log\frac{\exp(\mathrm{sim}(z_i,z_j)/\tau)}{\sum_{k}\exp(\mathrm{sim}(z_i,z_k)/\tau)}`,
+        what:"A softmax cross-entropy over similarities that picks the one true matching pair out of many negatives, scaled by a temperature \u03C4.",
+        where:"Self-supervised pretraining \u2014 SimCLR, MoCo \u2014 and the engine of modern contrastive learning.",
+        note:"Performance scales with the number of negatives; \u03C4 sharply controls how hard the loss separates pairs." },
+      { n:"Supervised Contrastive Loss", y:"2020",
+        t:"InfoNCE that uses the labels.",
+        f:r`\mathcal{L}=\sum_{i}\frac{-1}{|P(i)|}\sum_{p\in P(i)}\log\frac{\exp(z_i\!\cdot z_p/\tau)}{\sum_{a}\exp(z_i\!\cdot z_a/\tau)}`,
+        what:"Extends InfoNCE so that every same-class sample counts as a positive, tightening each class into a compact cluster.",
+        where:"Supervised representation learning \u2014 often beats plain cross-entropy on robustness and transfer.",
+        note:"Usually run as a pretraining stage, then a linear classifier is fit on the frozen embeddings." },
+      { n:"CLIP Loss (Image\u2013Text Contrastive)", y:"2021",
+        t:"Align images with their captions.",
+        f:r`\mathcal{L}=\tfrac{1}{2}\big(\mathcal{L}_{\text{img}\to\text{txt}}+\mathcal{L}_{\text{txt}\to\text{img}}\big)`,
+        what:"A symmetric InfoNCE over an image-vs-text similarity matrix; correct image-caption pairs lie on the diagonal and are the positives.",
+        where:"Vision-language pretraining \u2014 it powers zero-shot classification and text-to-image conditioning.",
+        note:"Needs very large batches; every other caption in the batch acts as a negative." },
+      { n:"ArcFace / CosFace (Angular Margin)", y:"2019",
+        t:"Add a margin on the angle itself.",
+        f:r`\mathcal{L}=-\log\frac{e^{\,s\cos(\theta_y+m)}}{e^{\,s\cos(\theta_y+m)}+\sum_{j\ne y}e^{\,s\cos\theta_j}}`,
+        what:"Adds an angular (ArcFace) or cosine (CosFace) margin into the softmax so classes are pushed apart on a hypersphere with explicit gaps.",
+        where:"State-of-the-art face recognition and verification.",
+        note:"Embeddings live on a sphere \u2014 compare them with cosine similarity, not Euclidean distance." },
+      { n:"Center Loss", y:"2016",
+        t:"Pull every feature to its class center.",
+        f:r`\mathcal{L}_C=\tfrac{1}{2}\sum_{i=1}^{m}\big\|x_i-c_{y_i}\big\|_2^2`,
+        what:"Penalizes the distance from each sample to a learned class centroid. Paired with softmax it makes features both separable and compact.",
+        where:"Face recognition and fine-grained embedding learning.",
+        note:"Used alongside cross-entropy, not alone \u2014 softmax separates classes, center loss tightens them." },
+      { n:"Barlow Twins / VICReg", y:"2021",
+        t:"Self-supervised, with no negatives at all.",
+        f:r`\mathcal{L}=\sum_i(1-\mathcal{C}_{ii})^2+\lambda\sum_i\sum_{j\ne i}\mathcal{C}_{ij}^2`,
+        what:"Instead of contrasting pairs, these decorrelate embedding dimensions (Barlow Twins) or balance variance, invariance and covariance (VICReg) to prevent collapse.",
+        where:"Negative-free self-supervised representation learning.",
+        note:"Avoids the large-batch and negative-mining cost of contrastive methods entirely." }
+    ]
+  },
+  {
+    id:"detection", color:"var(--c-det)", short:"Detection",
+    name:"Detection & Segmentation",
+    q:"You are localizing boxes or labeling pixels.",
+    crit:"Output is a region \u2014 a bounding box or a pixel mask",
+    blurb:"The model must place things in space. These losses score spatial overlap directly, and handle the severe imbalance between tiny objects and huge backgrounds.",
+    losses:[
+      { n:"IoU / GIoU / DIoU / CIoU Loss", y:"2016\u201320",
+        t:"Optimize bounding-box overlap directly.",
+        f:r`\mathcal{L}_{\text{CIoU}}=1-\mathrm{IoU}+\frac{\rho^2(b,b^{gt})}{c^2}+\alpha v`,
+        what:"Turns intersection-over-union into a loss. GIoU adds an enclosing-box term, DIoU a center-distance term, CIoU also an aspect-ratio term v.",
+        where:"Bounding-box regression in modern detectors \u2014 YOLO uses CIoU.",
+        note:"Plain IoU gives zero gradient when boxes don't overlap at all; the G/D/C variants fix exactly that dead zone." },
+      { n:"Dice Loss", y:"2016",
+        t:"Maximize mask overlap.",
+        f:r`\mathcal{L}_{\text{Dice}}=1-\frac{2\sum_i p_i g_i}{\sum_i p_i+\sum_i g_i}`,
+        what:"One minus the Dice (F1) overlap between predicted mask p and ground-truth mask g. Naturally copes with foreground/background imbalance.",
+        where:"Semantic segmentation, especially medical imaging (V-Net, U-Net pipelines).",
+        note:"Gradients can be unstable for very small or empty masks \u2014 often combined with a cross-entropy term." },
+      { n:"Tversky / Focal-Tversky Loss", y:"2017",
+        t:"Tune false positives against false negatives.",
+        f:r`\mathrm{T}=\frac{\sum pg}{\sum pg+\alpha\sum p\bar g+\beta\sum\bar p g}`,
+        what:"Generalizes Dice with weights \u03B1 and \u03B2 so you can deliberately prioritize precision or recall; the focal variant adds hard-region focusing.",
+        where:"Highly imbalanced segmentation \u2014 small lesions, thin or rare structures.",
+        note:"Set \u03B2 > \u03B1 to punish missed positives harder, which is usually what medical tasks want." },
+      { n:"Lov\u00E1sz-Softmax Loss", y:"2018",
+        t:"A surrogate that truly optimizes IoU.",
+        f:r`\mathcal{L}=\overline{\Delta_{J}}\big(m(\mathbf{x})\big)`,
+        what:"A smooth, differentiable surrogate of the Jaccard index (mean IoU), built from the Lov\u00E1sz extension of the IoU error.",
+        where:"Segmentation tasks evaluated directly on mean IoU.",
+        note:"Often used as a fine-tuning loss after an initial cross-entropy training phase." }
+    ]
+  },
+  {
+    id:"sequence", color:"var(--c-seq)", short:"Sequence",
+    name:"Sequence Alignment",
+    q:"Input and target sequences aren't aligned.",
+    crit:"Output is a sequence with no per-step labels",
+    blurb:"Sometimes you have an input sequence and a target sequence, but no idea which input step maps to which output token. This family sums over all plausible alignments.",
+    losses:[
+      { n:"CTC Loss (Connectionist Temporal Classification)", y:"2006",
+        t:"Train on sequences without alignment.",
+        f:r`\mathcal{L}=-\log\!\!\sum_{\pi\in\mathcal{B}^{-1}(y)}\!\! p(\pi\mid x)`,
+        what:"Sums the probability of every valid alignment (with inserted blank symbols) between input frames and the target sequence, so no per-frame labels are needed.",
+        where:"Speech recognition, handwriting recognition, and OCR.",
+        note:"Assumes outputs are conditionally independent across time \u2014 modern attention/transducer models often replace it." }
+    ]
+  },
+  {
+    id:"preference", color:"var(--c-pref)", short:"Preference",
+    name:"Preference & RLHF",
+    q:"You are learning from human preferences.",
+    crit:"Output is a policy \u2014 judged by which response a human prefers",
+    blurb:"There is no single correct answer, only a signal that one output is better than another. These losses turn human (or reward-model) preferences into a training objective \u2014 the core of LLM alignment.",
+    losses:[
+      { n:"PPO Clipped Surrogate", y:"2017",
+        t:"Improve the policy \u2014 but not too fast.",
+        f:r`\mathcal{L}=\mathbb{E}_t\!\left[\min\!\big(r_t\hat{A}_t,\;\mathrm{clip}(r_t,1-\epsilon,1+\epsilon)\,\hat{A}_t\big)\right]`,
+        what:"Maximizes advantage-weighted probability ratios r\u209C, while clipping them so any single update stays inside a trust region.",
+        where:"The reinforcement-learning step of RLHF, aligning an LLM to a learned reward model.",
+        note:"Stable but heavy \u2014 it needs a reward model, a value model, and on-policy sampling." },
+      { n:"DPO Loss (Direct Preference Optimization)", y:"2023",
+        t:"Skip the reward model entirely.",
+        f:r`\mathcal{L}=-\log\sigma\!\Big(\beta\log\tfrac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)}-\beta\log\tfrac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\Big)`,
+        what:"A simple classification loss over preference pairs that makes the preferred response y_w more likely than the rejected y_l, relative to a frozen reference policy.",
+        where:"Aligning LLMs straight from preference data \u2014 a lighter, popular alternative to RLHF/PPO.",
+        note:"\u03B2 controls how far the tuned policy may drift from the reference; no separate reward model or RL loop is required." }
+    ]
+  }
+];
+
+/* ---- build flowchart branches ---- */
+const fcBranches = document.getElementById('fcBranches');
+DATA.forEach(function(cat,i){
+  const b=document.createElement('button');
+  b.className='fc-node';
+  b.style.setProperty('--nc',cat.color);
+  b.innerHTML=
+    '<div class="idx">BRANCH '+String(i+1).padStart(2,'0')+'</div>'+
+    '<div class="name">'+cat.short+'</div>'+
+    '<div class="qline">'+cat.q+'</div>'+
+    '<div class="cnt">'+cat.losses.length+' loss functions</div>'+
+    '<div class="go">\u2192</div>';
+  b.addEventListener('click',function(){
+    document.getElementById('cat-'+cat.id).scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  fcBranches.appendChild(b);
+});
+
+/* ---- build nav pills ---- */
+const catnav=document.getElementById('catnav');
+DATA.forEach(function(cat){
+  const p=document.createElement('button');
+  p.className='pill';
+  p.style.setProperty('--pc',cat.color);
+  p.innerHTML='<span class="dot"></span>'+cat.short;
+  p.addEventListener('click',function(){
+    document.getElementById('cat-'+cat.id).scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  catnav.insertBefore(p,catnav.querySelector('.nav-spacer'));
+});
+
+/* ---- build category sections ---- */
+const sections=document.getElementById('sections');
+DATA.forEach(function(cat,ci){
+  const sec=document.createElement('section');
+  sec.className='cat';
+  sec.id='cat-'+cat.id;
+  sec.style.setProperty('--cc',cat.color);
+
+  const head=document.createElement('div');
+  head.className='cathead';
+  head.innerHTML=
+    '<div class="cat-num">'+String(ci+1).padStart(2,'0')+'</div>'+
+    '<div class="cathead-txt">'+
+      '<h2>'+cat.name+'</h2>'+
+      '<div class="crit">'+cat.crit+'</div>'+
+    '</div>';
+  sec.appendChild(head);
+
+  const blurb=document.createElement('p');
+  blurb.className='cat-blurb';
+  blurb.textContent=cat.blurb;
+  sec.appendChild(blurb);
+
+  const rule=document.createElement('div');
+  rule.className='cat-rule';
+  sec.appendChild(rule);
+
+  const grid=document.createElement('div');
+  grid.className='grid';
+
+  cat.losses.forEach(function(loss){
+    const card=document.createElement('article');
+    card.className='loss';
+    card.dataset.search=(loss.n+' '+loss.t).toLowerCase();
+
+    const chead=document.createElement('button');
+    chead.className='loss-head';
+    chead.innerHTML=
+      '<span class="marker"></span>'+
+      '<span class="loss-htext">'+
+        '<span class="loss-name">'+loss.n+'<span class="loss-year">'+loss.y+'</span></span>'+
+        '<span class="loss-tag">'+loss.t+'</span>'+
+      '</span>'+
+      '<span class="loss-chev">\u203A</span>';
+
+    const bodywrap=document.createElement('div');
+    bodywrap.className='loss-bodywrap';
+    const body=document.createElement('div');
+    body.className='loss-body';
+    const inner=document.createElement('div');
+    inner.className='loss-inner';
+
+    const formula=document.createElement('div');
+    formula.className='formula';
+    renderFormula(loss.f,formula);
+    inner.appendChild(formula);
+
+    const details=document.createElement('div');
+    details.innerHTML=
+      '<div class="frow">'+
+        '<div class="flabel">What it measures</div>'+
+        '<div class="ftext">'+loss.what+'</div>'+
+      '</div>'+
+      '<div class="frow">'+
+        '<div class="flabel">Where it\u2019s used</div>'+
+        '<div class="ftext dimmed">'+loss.where+'</div>'+
+      '</div>'+
+      (loss.note?
+      '<div class="frow warn">'+
+        '<div class="flabel">\u25B8 Watch out</div>'+
+        '<div class="ftext">'+loss.note+'</div>'+
+      '</div>':'');
+    inner.appendChild(details);
+
+    body.appendChild(inner);
+    bodywrap.appendChild(body);
+    card.appendChild(chead);
+    card.appendChild(bodywrap);
+
+    chead.addEventListener('click',function(){ card.classList.toggle('open'); });
+    grid.appendChild(card);
+  });
+
+  sec.appendChild(grid);
+  sections.appendChild(sec);
+});
+
+/* ---- search filter ---- */
+const search=document.getElementById('search');
+const noResults=document.getElementById('noResults');
+search.addEventListener('input',function(){
+  const q=search.value.trim().toLowerCase();
+  let total=0;
+  document.querySelectorAll('.cat').forEach(function(sec){
+    let shown=0;
+    sec.querySelectorAll('.loss').forEach(function(card){
+      const hit=!q||card.dataset.search.includes(q);
+      card.style.display=hit?'':'none';
+      if(hit)shown++;
+    });
+    sec.style.display=shown?'':'none';
+    total+=shown;
+  });
+  noResults.style.display=total?'none':'block';
+});
+
+/* ---- expand / collapse all ---- */
+const toggleAll=document.getElementById('toggleAll');
+let allOpen=false;
+toggleAll.addEventListener('click',function(){
+  allOpen=!allOpen;
+  document.querySelectorAll('.loss').forEach(function(c){
+    if(c.style.display==='none')return;
+    c.classList.toggle('open',allOpen);
+  });
+  toggleAll.textContent=allOpen?'collapse all':'expand all';
+});
+
+});
+</script>
+</body>
+</html>

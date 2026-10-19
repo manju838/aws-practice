@@ -24,6 +24,10 @@
         {%- endfor -%}
         <a class="page-link{% if page.url contains '/docs/' %} current-tab{% endif %}"
           href="{{ '/docs/' | relative_url }}">Conventions</a>
+        
+          <!-- Linking standalone loss funtion atlas page directly, not created using Jekyll -->
+        <a class="page-link{% if page.url contains '/loss-function-atlas' %} current-tab{% endif %}"
+          href="{{ '/personal-notes/loss-function-atlas.html' | relative_url }}">Loss Function Atlas</a>
       </div>
     </nav>
   </div>
