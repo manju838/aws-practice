@@ -88,6 +88,7 @@ levy on new commercial developments, and the first 2,000 trees will go in
 along the ring road where air quality readings have been worst."""
 
 # 4. Define a prompt template so that user's input can be injected into it
+from langchain_core.prompts import ChatPromptTemplate
 prompt_template = ChatPromptTemplate.from_messages([
     ("system", "You summarise text for busy people."),
     ("user", "Summarise this in one sentence:\n\n{text}"),
@@ -97,7 +98,7 @@ prompt_template = ChatPromptTemplate.from_messages([
 final_prompt_message = prompt_template.invoke({"text": user_input})
 
 # 6. Call LLM with final prompt message
-response = model.invoke(messages)
+response = model.invoke(final_prompt_message)
 
 # 7. Extract output text
 response.text # or response.content
@@ -120,9 +121,9 @@ libs/core/langchain_core
     |__ `runnables/`        : The Orchestration Backbone(Only Linear Orchestration)
     |__ `tools/`            : Define how to convert basic python fn. into an LLM compatible object(so that it understands and calls if needed) 
     |__ `messages/`         : Standardises the input and output data formats(both textual and multimodal) for Chat models irrespective of llm api vendors.
-    |__ `prompts/`          : Converts raw user variables into fully structured input prompts. ChatPromptTemplate, PromptTemplate, MessagesPlaceholder are the key primitives
-    |__ `documents/`        : Contains the fundamental Document class. Every single input file in a RAG project(pdf, jpg, docx etc.) is converted into one or more Document objects 
-    |__ `document_loaders/` : Define BaseLoader class, the universal blueprint for converting raw files into standard Document objects. PDF file for example is processed by PyPDFLoader, which implements BaseLoader
+    |__ `prompts/`          : Converts raw user variables into fully structured input prompts. "ChatPromptTemplate", "PromptTemplate", "MessagesPlaceholder" are the key primitives
+    |__ `documents/`        : Contains the fundamental "Document" class. Every single input file in a RAG project(pdf, jpg, docx etc.) is converted into one or more Document objects 
+    |__ `document_loaders/` : Define "BaseLoader" class, the universal blueprint for converting raw files into standard Document objects. PDF file for example is processed by "PyPDFLoader", which implements "BaseLoader"
     |__ `language_models/`  : Defines the core chat model interface "BaseChatModel" from which each model extends(ChatOpenAI, ChatAnthropic,ChatOpenRouter etc.) so that models can be switched without rewriting application logic. 
     |__ `vectorstores/`     : Provides abstract base class "VectorStore" that provides standard operations like add_documents(),similarity_search() so that Langchain can standardise vector database interaction irrespective of vector DB provider.
     |__ `embeddings/`       : Defines "Embeddings" abstract base class that model providers extend to publish their own embedding packages(eg. OpenAIEmbeddings() from langchain_openai, GoogleGenAIEmbeddings() from langchain_google_genai etc.) and implementing mandatory, universal methods embed_documents() and embed_query()
@@ -130,18 +131,15 @@ libs/core/langchain_core
     |__ `indexing/`         : Acts as a stateful sync coordinator when user updates one of the raw input files so that re-embedding is performed only on the modified file leaving the rest as it is to prevent redundant processing and saving costs. "RecordManager" maps hashes of original documents to their corresponding generated vector IDs.
     |__ `tracers/`          : Defines "LangChainTracer" used for exposing Langchain to LLMOPS and monitoring libraries like Langsmith. 
     |__ `output_parsers/`   : Defines various output parsers like StrOutputParser() to parse and extract actual reply from AIMessage(response of LLM)
-    |__ `callbacks/`        : Defines BaseCallbackHandler and CallbackManager. This package powers token streaming, logging, and real-time metrics and connects tracers/ package
-    |__ `example_selectors/`
-    |__ `outputs/`
-    |__ `utils/`
+    |__ `callbacks/`        : Defines "BaseCallbackHandler" and "CallbackManager". This package powers token streaming, logging, and real-time metrics and connects tracers/ package
 (---------- Modules ----------)
-    |__ retrievers.py
+    |__ retrievers.py       : Defines abstract base class "BaseRetriever" with universal method _get_relevant_documents() to standardize fetching documents from any source (Vector DB, BM25, Web APIs) without handling underlying storage logic.
     |__ chat_history.py     : Defines abstract base class "BaseChatMessageHistory" with universal methods like add_message(), get_messages(), clear() for persisting and fetching past messages
-    |__ caches.py           : Defines BaseCache, the contract for storing and retrieving previously generated LLM outputs.
-    |__ rate_limiters.py    : Defines BaseRateLimiter, the contract that caps the number of requests per second (RPS)
-    |__ stores.py
-    |__ agents.py
-    |__ prompt_values.py
+    |__ caches.py           : Defines "BaseCache", the contract for storing and retrieving previously generated LLM outputs.
+    |__ rate_limiters.py    : Defines "BaseRateLimiter", the contract that caps the number of requests per second (RPS)
+    |__ stores.py           : Defines abstract base class "BaseStore" with key-value operations like mget(), mset(), mdelete() for persisting large raw chunks, images, or graph state checkpoints by ID.
+    |__ agents.py           : Defines core data schemas like "AgentAction", "AgentStep", and "AgentFinish". Before an agent executes a tool, it yields an AgentAction (specifying tool name and arguments). Once executed, the result is packaged into an AgentStep. When reasoning is complete, it returns an AgentFinish containing the final output.
+    |__ prompt_values.py    : ChatPromptTemplate.invoke() generates the final_prompt_message that is passed onto the LLM. This prompt_values module deals with the datatypes of this "final_prompt_message" variable. So,prompts package provides the template and prompt_values module regulates the objects formed by using these templates.
 ```
 
 For a basic RAG pipeline implemented using Langchain:
