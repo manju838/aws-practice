@@ -130,25 +130,18 @@ libs/core/langchain_core
     |__ `indexing/`         : Acts as a stateful sync coordinator when user updates one of the raw input files so that re-embedding is performed only on the modified file leaving the rest as it is to prevent redundant processing and saving costs. "RecordManager" maps hashes of original documents to their corresponding generated vector IDs.
     |__ `tracers/`          : Defines "LangChainTracer" used for exposing Langchain to LLMOPS and monitoring libraries like Langsmith. 
     |__ `output_parsers/`   : Defines various output parsers like StrOutputParser() to parse and extract actual reply from AIMessage(response of LLM)
-    |__ `callbacks/`        : 
+    |__ `callbacks/`        : Defines BaseCallbackHandler and CallbackManager. This package powers token streaming, logging, and real-time metrics and connects tracers/ package
     |__ `example_selectors/`
     |__ `outputs/`
     |__ `utils/`
 (---------- Modules ----------)
-    |__ agents.py
-    |__ caches.py
-    |__ chat_history.py
-    |__ chat_loaders.py
-    |__ chat_sessions.py
-    |__ cross_encoders.py
-    |__ exceptions.py
-    |__ prompt_values.py
-    |__ rate_limiters.py
     |__ retrievers.py
+    |__ chat_history.py     : Defines abstract base class "BaseChatMessageHistory" with universal methods like add_message(), get_messages(), clear() for persisting and fetching past messages
+    |__ caches.py           : Defines BaseCache, the contract for storing and retrieving previously generated LLM outputs.
+    |__ rate_limiters.py    : Defines BaseRateLimiter, the contract that caps the number of requests per second (RPS)
     |__ stores.py
-    |__ structured_query.py
-    |__
-    |__
+    |__ agents.py
+    |__ prompt_values.py
 ```
 
 For a basic RAG pipeline implemented using Langchain:
